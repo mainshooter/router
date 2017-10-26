@@ -10,6 +10,8 @@
     private $mode;
     // Mode contains how we want to the Router to behave
 
+    private $standardController;
+
     /**
      * Runs when the class instancieerd
      * It sets the url and our path
@@ -23,7 +25,7 @@
       $this->url = $indexLocation;
 
       $path = str_replace($indexLocation, '', $_SERVER['REQUEST_URI']);
-      $this->path = $path;
+      $this->path = explode('/', $path);
       // Contains the path of the url without all the things we don't need, like http://localhost/
 
       $_SERVER['REQUEST_URI'];
@@ -37,7 +39,7 @@
     public function setMode($mode = 'default') {
       switch ($mode) {
         case 'one-controller':
-          $this->mode = 'default';
+          $this->mode = 'one-controller';
           break;
         case 'default':
           $this->mode = 'default';
@@ -46,6 +48,38 @@
         default:
           $this->mode = 'default';
           break;
+      }
+    }
+
+    public function setDefaultController($controller) {
+      $this->standardController = $controller;
+    }
+
+    public function parseRouter() {
+
+    }
+
+    private function getController() {
+      if ($this->mode == 'default') {
+        if (ISSET($this->path[0])) {
+          if (file_exists('controller/' . $this->path[0] . 'Controller.php')) {
+            $this->controller = $this->path[0]
+          }
+
+          else {
+            // Take default controller, because the controller that the client has in the url doesn't exists
+            $this->controller = $this->standardController;
+          }
+        }
+
+        else {
+          // We take the default controller
+          $this->controller = $this->standardController;
+        }
+      }
+
+      else if ($this->mode == 'one-controller') {
+        
       }
     }
 
@@ -58,6 +92,8 @@
         echo "<pre>";
           var_dump($this->path);
         echo "</pre>";
+        echo "<br>";
+        echo "Mode: " . $this->mode;
         echo "<br>";
         echo "Controller: " . $this->controller;
         echo "<br>";
